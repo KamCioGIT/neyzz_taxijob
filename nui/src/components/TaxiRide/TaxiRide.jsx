@@ -5,7 +5,6 @@ import Button from "../Button/Button.jsx";
 import './TaxiRide.css'
 
 export default function TaxiRide({id, name, location, destination, distance, ...comps}) {
-
     return (
         <div className="taxiRide" style={{color: 'white'}}>
             <h3>Course n°{id}</h3>
