@@ -7,5 +7,17 @@ export default function TaxiRides() {
 
     return (<div className="taxiRides">
         <TaxiRide id={12} name='John Doe' location ="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} />
+        {/* <TaxiRide id={13} name='John Doe' location="Joshua Road" destination='Vespucci' distance={5230} /> */}
+
     </div>)
 }

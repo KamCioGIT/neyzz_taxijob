@@ -12,8 +12,8 @@ export default function TaxiRide({id, name, location, destination, distance, ...
             <p><FontAwesomeIcon icon={faPerson} className ="personName"/> {name}</p>
             <p><FontAwesomeIcon icon={faLocation} /> {location}</p>
             <p><FontAwesomeIcon icon={faMapLocationDot} /> {destination}</p>
-            <p><FontAwesomeIcon icon={faRoute} /> {distance}</p>
-            <Button text = "Accepter"/>
+            <p><FontAwesomeIcon icon={faRoute} /> {distance}m</p>
+            <Button text = "Accepter" type="success"/>
         </div>
     )
 }

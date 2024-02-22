@@ -1,0 +1,27 @@
+button.btn {
+    margin-top: 15px;
+    border: none;
+    outline: none;
+    color: white;
+    cursor: pointer;
+}
+
+button.btn.success {
+    background-color: #48b848;
+    padding: 5px 10px;
+}
+
+button.btn.success:is(:hover) {
+    background-color: #247224;
+    padding: 5px 10px;
+}
+
+button.btn.success:is(:active) {
+    background-color: #315f31;
+    padding: 5px 10px;
+}
+
+button.btn.error {
+    background-color: #b84848;
+    padding: 5px 10px;
+}

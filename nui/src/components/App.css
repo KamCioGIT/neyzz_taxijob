@@ -29,6 +29,32 @@ h1 {
 
 .taxiRides {
     display: flex;
-    border: 1px solid red;
+    flex-wrap: wrap;
+    flex-direction: row;
+    overflow-y: auto;
+    /* border: 1px solid red; */
     margin: 20px;
+    max-height: 60vh;
+    flex-shrink: 1px;
+    /* height: 100%; */
+
+}
+.taxiRides::-webkit-scrollbar {
+    position: absolute;
+    border-radius: 10px;
+    width: 5px;
+}
+/* Track */
+.taxiRides::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+.taxiRides::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+.taxiRides::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
