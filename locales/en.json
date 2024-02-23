@@ -1,0 +1,19 @@
+{
+    "menu_title": "Taxi Menu",
+    "menu_duty_on": "Go on duty",
+    "menu_duty_off": "Go off duty",
+    "menu_rides_button": "Show Rides",
+    "menu_availability_toggle": "Toggle Availability",
+
+    "keybind_name": "Taxi job menu",
+    "keybind_description": "Taxi job menu",
+
+    "taxi_company_name": "Downtown Cab & Co.",
+    "taxi_duty_on_success": "You are now on duty.",
+    "taxi_duty_off_success": "You are now off duty.",
+    "taxi_available": "You are now available.",
+    "taxi_unavailable": "You are now unavailable.",
+    "taxi_already_called": "You already have a call pending.",
+    "taxi_called_success": "Your call has been sent to a taxi.",
+    "taxi_new_call": "Your call has been sent to a taxi."
+}
