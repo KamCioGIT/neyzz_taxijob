@@ -15,7 +15,6 @@ export default function TaxiRides() {
             { id: 17, name:"John Doe", roadName:"Joshua Road", destination: "Vespucci", distance: 140.5},
             { id: 18, name: "John Doe", roadName: "Joshua Road", destination: "Vespucci", distance: 140.5 },
         ]).then(data => {
-            console.log('ok')
             setRides(data)
         }).catch(err => {
             console.log('Failed to fetch')
@@ -23,7 +22,7 @@ export default function TaxiRides() {
     }, null)
 
     const rds = rides.map(ride => (
-        <TaxiRide id={ride.id} name={ride.name} location={ride.roadName} destination={ride.destination} distance={ride.distance} />
+        <TaxiRide id={ride.id} name={ride.name} location={ride.roadName} destination={ride.destination} distance={ride.distance} key={ride.id}/>
     ))
 
     return (<div className="taxiRides">
