@@ -15,5 +15,9 @@
     "taxi_unavailable": "You are now unavailable.",
     "taxi_already_called": "You already have a call pending.",
     "taxi_called_success": "Your call has been sent to a taxi.",
-    "taxi_new_call": "Your call has been sent to a taxi."
+    "taxi_new_call": "A new call has arrived.",
+    "taxi_accept_call": "You take the call n°%s.",
+    "taxi_incoming": "A taxi is arriving to your location please stay where you are.",
+    "taxi_ride_finished": "You have terminated a ride. You earned: $%s",
+    "already_on_call": "You are already on a ride."
 }

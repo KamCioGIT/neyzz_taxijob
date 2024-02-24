@@ -5,12 +5,11 @@ import Button from "../Button/Button.jsx";
 import { VisibilityProvider, useVisibility } from "../../providers/VisibilityProvider.jsx";
 import './TaxiRide.css'
 
-export default function TaxiRide({id, name, location, destination, distance, ...comps}) {
-    const handleClick = (rideId, setVisible) => {
-        setVisible(false)
+export default function TaxiRide({id, name, location, destination, distance, Select, taxiId, selfId, ...comps}) {
+    const clearRide = () => {
+        fetchNui('clearRide', null).then(data => {}).catch(err => console.log)
     }
-    const visible = useVisibility();
-    // setVisible(false)
+
     return (
         <div className="taxiRide" style={{color: 'white'}}>
             <h3>Course n°{id}</h3>
@@ -18,7 +17,10 @@ export default function TaxiRide({id, name, location, destination, distance, ...
             <p><FontAwesomeIcon icon={faLocation} /> {location}</p>
             <p><FontAwesomeIcon icon={faMapLocationDot} /> {destination}</p>
             <p><FontAwesomeIcon icon={faRoute} /> {distance}m</p>
-            <Button text = "Accepter" type="success"/>
+
+            {(selfId == taxiId)?<Button text='Terminer' type="error" onClick={() => {}} /> :<Button text = "Accepter" type="success" onClick={() => {
+                Select(id)
+            }}/>}
         </div> 
     )
 }

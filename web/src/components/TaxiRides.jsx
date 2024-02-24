@@ -25,8 +25,17 @@ export default function TaxiRides() {
         })
     }, [])
 
+    const SelectRide = (id) =>{
+        console.log('test')
+        fetchNui('acceptRide', {id: id}).then(data => {
+            console.log('Accepted Ride')
+        }).catch(err => {
+            console.log('Failed to fetch')
+        })
+    }
+
     const rds = rides.map(ride => (
-        <TaxiRide id={ride.id} name={ride.name} location={ride.roadName} destination={ride.destination} distance={ride.distance} key={ride.id}/>
+        <TaxiRide id={ride.id} name={ride.name} location={ride.roadName} destination={ride.destination} distance={Math.round(ride.distance)} key={ride.id} Select={SelectRide} taxiId={ride.taxi} selfId={ride.selfId}/>
     ))
 
     return (<div className="taxiRides">

@@ -1,5 +1,5 @@
 lib.locale()
-
+local activeCall = nil
 
 local duty <const> = {on= false, available = false}
 
@@ -54,6 +54,7 @@ lib.registerMenu({
     if args.action == "duty-on" then
         SetServiceForSelf(true)
     elseif args.action == "show-nui" then
+        ReloadCalls()
         toggleNuiFrame(true)
         debugPrint('Show NUI frame')
     elseif args.action == "toggle_availability" then
@@ -68,8 +69,11 @@ lib.addKeybind({
     description=locale("keybind_description"),
     defaultKey=Config.menuKey,
     onPressed=function (self)
-        debugPrint('On affiche le menu taxi')
-        lib.showMenu('neyzz_taxi:jobMenu')
+        local PlayerData = ESX.GetPlayerData()
+        if PlayerData.job.name == Config.taxiJob then
+            debugPrint('On affiche le menu taxi')
+            lib.showMenu('neyzz_taxi:jobMenu')
+        end
     end
 })
 
@@ -109,7 +113,7 @@ end
 
 function ToggleSelfAvailabitlity()
     local toggle = not duty.available
-    if toggle then 
+    if toggle then
         duty.available = toggle
         lib.notify({
             title=locale('taxi_company_name'),
@@ -137,8 +141,40 @@ RegisterNetEvent('neyzz_taxi:refreshRides', function(rides)
         local streetHash --[[ Hash ]], crossingRoad --[[ Hash ]] = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
         local streetName = GetStreetNameFromHashKey(streetHash)
         local dist = GetDistanceBetweenCoords(pos, GetEntityCoords(PlayerPedId()))
-        table.insert(courses, {id = ride.id, name = ride.name, roadName= streetName, destination="Unknown", distance = dist})
+        table.insert(courses, {id = ride.id, name = ride.name, roadName= streetName, destination="Unknown", distance = dist, selfId=cache.serverId, taxi=ride.taxi})
 
     end
+    debugPrint(json.encode(courses))
     SendReactMessage('newCourse', courses)
 end)
+
+RegisterNUICallback('acceptRide', function(data, cb)
+    local id = data.id
+    if activeCall ~= nil then return lib.notify({
+        title=locale('taxi_company_name'),
+        description=locale('already_on_call'),
+        icon="fas fa-taxi"
+    }) end
+    debugPrint("Vous acceptez l'appel "..id)
+    local ret = lib.callback.await('neyzz_taxijob:acceptRide', false, id)
+    if ret then
+        lib.callback.await('neyzz_taxijob:setAvailable', false, true)
+        activeCall = id
+    end
+end)
+
+RegisterNUICallback('clearRide', function(data, cb)
+    if activeCall then
+        ClearCall()
+    end
+end)
+
+function ClearCall()
+    lib.callback.await('neyzz_taxijob:finishRide', false, activeCall)
+    ReloadCalls()
+    activeCall = nil
+end
+
+function ReloadCalls()
+    TriggerServerEvent('neyzz_taxi:refreshUi')
+end

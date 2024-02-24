@@ -7,7 +7,6 @@ local latestId = 1
 local callers = {}
 TaxiCalls = {
     --[[
-        @param 
         [id] = {id= 1, caller=src, callerName="John Doe"}
     ]]
 }
@@ -61,12 +60,12 @@ local function prepareNuiCalls(src)
     for k, v in pairs(TaxiCalls) do
         local xCaller = ESX.GetPlayerFromId(v.caller)
         local pos = xCaller.getCoords(true)
-        table.insert(taxiCalls, {id = v.id, name = v.callerName, callerPos = pos, destination="Unknown", })
+        table.insert(taxiCalls, {id = v.id, name = v.callerName, callerPos = pos, destination="Unknown", taxi=v.taxi })
     end
     return taxiCalls
 end
 
-lib.callback.register('neyzz_taxi:getCalls', prepareNuiCalls)
+lib.callback.register('neyzz_taxijob:getCalls', prepareNuiCalls)
 
 
 function SendTaxisNewcall()
@@ -79,3 +78,61 @@ function SendTaxisNewcall()
         })
     end
 end
+
+lib.callback.register('neyzz_taxijob:acceptRide', function (src, id)
+    local call = TaxiCalls[id]
+    if call then
+        TaxiCalls[id].taken = true
+        TaxiCalls[id].taxi = src
+        TriggerClientEvent('ox_lib:notify', src, {
+            name=locale("taxi_company_name"),
+            description=locale('taxi_accept_call', id),
+            icon="fas fa-taxi",
+            type="success"
+        })
+
+        TriggerClientEvent('ox_lib:notify', TaxiCalls[id].caller, {
+            name=locale("taxi_company_name"),
+            description=locale('taxi_incoming'),
+            icon="fas fa-taxi",
+            type="success"
+        })
+        for k, v in pairs(Service) do
+            TriggerClientEvent('neyzz_taxi:refreshRides', k, prepareNuiCalls(k))
+        end
+        return true
+    else
+        TriggerClientEvent('neyzz_taxi:refreshRides', src, prepareNuiCalls(src))
+        return false
+    end
+end)
+
+lib.callback.register('neyzz_taxijob:finishRide', function(src, id)
+    local ride = TaxiCalls[id]
+    if ride == nil then return false end
+    if ride.taxi ~= src then return false end
+    RemoveCaller(ride.caller)
+    --- Implémenter la logique avec l'argent
+    TriggerClientEvent('ox_lib:notify', src, {
+        title=locale('taxi_company_name'),
+        description=locale('taxi_ride_finished'),
+        icon="fas fa-taxi",
+        type="success"
+    })
+    Service[src] = true
+    table.remove(TaxiCalls, id)
+end)
+
+function RemoveCaller(src)
+    for k, v in pairs(callers) do
+        if v == src then
+            table.remove(callers, k)
+            return
+        end
+    end
+end
+
+RegisterNetEvent('neyzz_taxi:refreshUi', function()
+    local src = source
+    TriggerClientEvent('neyzz_taxi:refreshRides', src, prepareNuiCalls(src))
+end)
