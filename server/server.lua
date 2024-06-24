@@ -11,7 +11,7 @@ TaxiCalls = {
     ]]
 }
 
-lib.callback.register('neyzz_taxijob:setDuty', function(src, toggle)
+lib.callback.register('neyzz_taxi:setDuty', function(src, toggle)
     if toggle then
         Service[src] = true
     else
@@ -19,8 +19,9 @@ lib.callback.register('neyzz_taxijob:setDuty', function(src, toggle)
     end
 end)
 
+TriggerEvent('esx_society:registerSociety', 'taxi', locale('taxi_company_name'), 'society_taxi', 'society_taxi', 'society_taxi', {type = 'private'})
 
-lib.callback.register('neyzz_taxijob:setAvailability', function(src, toggle)
+lib.callback.register('neyzz_taxi:setAvailability', function(src, toggle)
     if lib.table.contains(Service, src) then
         Service[src] = toggle
     end
@@ -28,6 +29,11 @@ end)
 
 lib.callback.register('neyzz_taxi:callTaxi', function(src)
     debugPrint('New taxi call from '..src)
+    if #Service == 0 then
+        -- Call an AI taxi
+        TriggerClientEvent('citra-taxi:client:callOrCancelTaxi', src)
+        return;
+    end
     if lib.table.contains(callers, src) then
         TriggerClientEvent('ox_lib:notify', src, {
             title=locale('taxi_company_name'),
@@ -65,7 +71,7 @@ local function prepareNuiCalls(src)
     return taxiCalls
 end
 
-lib.callback.register('neyzz_taxijob:getCalls', prepareNuiCalls)
+lib.callback.register('neyzz_taxi:getCalls', prepareNuiCalls)
 
 
 function SendTaxisNewcall()
@@ -79,7 +85,7 @@ function SendTaxisNewcall()
     end
 end
 
-lib.callback.register('neyzz_taxijob:acceptRide', function (src, id)
+lib.callback.register('neyzz_taxi:acceptRide', function (src, id)
     local call = TaxiCalls[id]
     if call then
         TaxiCalls[id].taken = true
@@ -100,14 +106,15 @@ lib.callback.register('neyzz_taxijob:acceptRide', function (src, id)
         for k, v in pairs(Service) do
             TriggerClientEvent('neyzz_taxi:refreshRides', k, prepareNuiCalls(k))
         end
-        return true
+        local xTarget <const> = ESX.GetPlayerFromId(call.caller);
+        return true, xTarget.getCoords();
     else
         TriggerClientEvent('neyzz_taxi:refreshRides', src, prepareNuiCalls(src))
         return false
     end
 end)
 
-lib.callback.register('neyzz_taxijob:finishRide', function(src, id)
+lib.callback.register('neyzz_taxi:finishRide', function(src, id)
     local ride = TaxiCalls[id]
     if ride == nil then return false end
     if ride.taxi ~= src then return false end
@@ -135,4 +142,24 @@ end
 RegisterNetEvent('neyzz_taxi:refreshUi', function()
     local src = source
     TriggerClientEvent('neyzz_taxi:refreshRides', src, prepareNuiCalls(src))
+end)
+
+lib.callback.register('neyzz_taxi:billPlayer', function(src, target, amount, pos)
+    reason = ""
+    if pos then
+        local streetHash --[[ Hash ]], crossingRoad --[[ Hash ]] = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+        local streetName = GetStreetNameFromHashKey(streetHash)
+        local pPos = ESX.GetPlayerFromId(src).getCoords(true)
+        local streetHash2 --[[ Hash ]], crossingRoad2 --[[ Hash ]] = GetStreetNameAtCoord(pos.x, pos.y, pos.z)
+        local arriv = GetStreetNameFromHashKey(streetHash2)
+        reason = locale('bill_description', streetName, arriv)
+    end
+    local xTarget = ESX.GetPlayerFromId(target)
+    print(xTarget.getIdentifier())
+    local xPlayer <const> = ESX.GetPlayerFromId(src)
+    exports.pefcl:createInvoice(src, { to = xTarget.getName(), toIdentifier = xTarget.getIdentifier(), from = locale('taxi_company_name'), fromIdentifier= xPlayer.getIdentifier(), receiverAccountIdentifier = 'taxi', amount = amount, message = '', expiresAt = expiresAt })
+end)
+
+RegisterServerEvent('nyezz_taxi:startNpcMission', function()
+    exports["h_taximissions"]:StartTaxiMission(source)
 end)

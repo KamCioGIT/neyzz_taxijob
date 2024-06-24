@@ -1,0 +1,1 @@
+INSERT INTO `jobs`(`name`, `label`, `whitelisted`) VALUES ('taxi', 'Downtown Cab & Co.', 1);

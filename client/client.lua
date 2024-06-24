@@ -61,6 +61,8 @@ lib.registerMenu({
         ToggleSelfAvailabitlity()
     elseif args.action == "duty-off" then
         SetServiceForSelf(false)
+    elseif args.action == "npc-mission" then
+        TriggerServerEvent('neyzz_taxi:startNpcMission')
     end
 end)
 
@@ -77,29 +79,58 @@ lib.addKeybind({
     end
 })
 
+function SendBill(data)
+    local pid <const> = GetPlayerServerId(NetworkGetPlayerIndexFromPed(data.entity))
+    local amount = lib.inputDialog(locale('bill'), {
+        {label=locale('amount'), type="number", min=0, required=true, placeholder=locale('amount_placeholder')}
+    })
+    if amount then
+        local dpos = nil
+        if activeCall ~= nil then dpos = activeCall.pos end
+        local retval = lib.callback.await('neyzz_taxi:billPlayer', false, pid, amount[1], dpos)
+        if retval then
+            lib.notify({
+                title=locale("taxi_company_name"),
+                description=locale('bill_sent'),
+                icon="fas fa-taxi"
+            })
+        end
+    end
+end
+
 function SetServiceForSelf(toggle)
     if toggle then
         lib.notify({
             title=locale('taxi_company_name'),
             icon='fas fa-taxi',
             description=locale('taxi_duty_on_success')
+        });
+        exports.ox_target:addGlobalPlayer({
+            label=locale('send_bill'),
+            id="taxijob:bill",
+            distance=3.0,
+            icon="fas fa-paper",
+            onSelect=SendBill
+
         })
         duty.available = true
         duty.on = true
         local options = {
             {label= locale('menu_rides_button'), close=true, args={action="show-nui"}, icon="fas fa-taxi"},
             {label= locale('menu_availability_toggle'), close=false, args={action="toggle_availability"}, icon="fas fa-user-slash"},
+            {label= locale('menu_npc_mission'), close=true, args={action="npc-misison"}, icon="fas fa-person"},
             {label= locale('menu_duty_off'), close=true, args={action="duty-off"}, icon="fas fa-power-off"},
         }
 
         lib.setMenuOptions('neyzz_taxi:jobMenu', options)
-        lib.callback.await('neyzz_taxijob:setDuty', false, true)
+        lib.callback.await('neyzz_taxi:setDuty', false, true)
     else
         lib.notify({
             title=locale('taxi_company_name'),
             icon='fas fa-taxi',
             description=locale('taxi_duty_off_success')
         })
+        exports.ox_target:removeGlobalPlayer("taxijob:bill")
         duty.available = false
         duty.on = false
         local options = {
@@ -107,7 +138,7 @@ function SetServiceForSelf(toggle)
         }
 
         lib.setMenuOptions('neyzz_taxi:jobMenu', options)
-        lib.callback.await('neyzz_taxijob:setDuty', false, false)
+        lib.callback.await('neyzz_taxi:setDuty', false, false)
     end
 end
 
@@ -120,7 +151,7 @@ function ToggleSelfAvailabitlity()
             icon='fas fa-taxi',
             description=locale('taxi_available')
         })
-        lib.callback.await('neyzz_taxijob:setAvailable', false, toggle)
+        lib.callback.await('neyzz_taxi:setAvailable', false, toggle)
     else
         duty.available = toggle
         lib.notify({
@@ -128,7 +159,7 @@ function ToggleSelfAvailabitlity()
             icon='fas fa-taxi',
             description=locale('taxi_unavailable')
         })
-        lib.callback.await('neyzz_taxijob:setAvailable', false, toggle)
+        lib.callback.await('neyzz_taxi:setAvailable', false, toggle)
     end
 end
 
@@ -156,21 +187,25 @@ RegisterNUICallback('acceptRide', function(data, cb)
         icon="fas fa-taxi"
     }) end
     debugPrint("Vous acceptez l'appel "..id)
-    local ret = lib.callback.await('neyzz_taxijob:acceptRide', false, id)
+    local ret, coords = lib.callback.await('neyzz_taxi:acceptRide', false, id)
+    debugPrint(ret, json.encode(coords))
+    SetNewWaypoint(coords.x, coords.y)
+    
     if ret then
-        lib.callback.await('neyzz_taxijob:setAvailable', false, true)
+        lib.callback.await('neyzz_taxi:setAvailability', false, true)
         activeCall = id
     end
 end)
 
 RegisterNUICallback('clearRide', function(data, cb)
+    debugPrint('Event clearcall passed to client side')
     if activeCall then
         ClearCall()
     end
 end)
 
 function ClearCall()
-    lib.callback.await('neyzz_taxijob:finishRide', false, activeCall)
+    lib.callback.await('neyzz_taxi:finishRide', false, activeCall)
     ReloadCalls()
     activeCall = nil
 end
